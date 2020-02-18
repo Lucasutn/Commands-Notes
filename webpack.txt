@@ -1,0 +1,299 @@
+2  ####npm init
+
+entry point: index.js;
+
+3 ##Existen dos tipos de dependencias, las depencias propiamente dichas y las dependecias de desarrollo --save-dev para guardar las dependecia de desarrollo
+
+npm install webpack --save  (el --save es para que se guarde registre en el package.json)
+
+npm install webpack --save --save-exact (^)
+
+npm install webpack --save-dev --save-exact
+
+4 ###dependencia necesaria para webpack 4, permite ejecutar en consola el comando webpack 
+
+(CLI command line interface)
+npm install webpack-cli --save-dev --save-exact
+
+npx webpack -v  (con npx llamo solo a las dependecias que estan en esa carpeta, en este caso webpack, no es una dependecia global como node o npm, sino solo de la carpeta)
+
+###creando o agregando el archivo a webpack
+
+npx webpack --entry ./index.js --output ./bundle.js
+
+
+####hay que setear el mode a development or production (para contruir el bundle, de acuerdo al modo el bundle, se contruye de diferente manera, en production crea el bundle en una sola linea)
+
+npx webpack --entry ./index.js --output ./bundle.js --mode development
+
+5 ####webpack.config.js######################################
+
+const path = require('path') (path es un modulo de nodejs)
+
+module.exports={
+
+	entry:'./index.js'
+	mode:development,
+	output:{
+	
+		path:path.resolve(__dirname),
+		filename:'bundle.js';
+
+(__dirname es el directorio desde donde se esta corriendo el comando otras opciones son ('output,'js' (esto partiendo desde el directorio donde me encuentro)))
+
+		}
+	
+
+		}
+
+***npx webpack
+
+##package.json
+
+scripts:{
+
+	"build": "webpack"
+
+}
+
+***npm run build
+
+6.Multiples confg de webpack en un proyecto
+###webpack.config.js en carpeta external (external es el nombre de la carpeta, ademas dentro de la cual va a haber una carpeta dist donde van a parar todos los archivos compilados, bundles)###################
+
+
+const path = require('path')
+
+module.exports={
+
+	entry:path.resolve(__dirname,'index.js'),
+	mode:development,
+	output:{
+	
+		path:path.resolve(__dirname,'dist'),
+		filename:'bundle.js';
+}}
+
+
+***package.json
+
+scrips:
+
+"build:external": "webpack --config ./external/webpack.config.js"
+
+tambien puedo hacer este script:
+
+"build":"webpack --entry ./index.js --output ./bundle.js --mode development"
+
+
+7  ####Multi entry points (template de webpack name")
+
+
+const path = require('path')
+
+module.exports={
+
+	entry:{
+		home:path.resolve(__dirname,'src/js/index.js'),
+		precios:path.resolve(__dirname,'src/js /precios.js'),
+		contacto:path.resolve(__dirname,'src/js/contacto.js'),
+
+		
+		}
+
+	mode:development,
+
+	output:{
+	
+		path:path.resolve(__dirname,'dist'),
+		filename:'js/[name].js' (esta parte es importante [name] para que no cree un solo archivo y lo sobreescriba, sino que cree multiples bundles)
+}}
+
+
+****package.js
+
+scripts:
+
+"build:multi: webpack --config ./multi-entry-point/webpack.config.js"
+
+
+8  #####Loaders (me ayudan a cargar archivos con diferente extencion x ej css dentro de un js)
+(interpreta los tipos de archivos que tengamos)
+
+(en el index.js)
+import '../css/index.css'
+
+
+
+npm install --save-dev --save-exact css-loader  (esto sirve solo para interpretar el css importado dentro de un js)
+
+npm install --save-dev --save-exact style-load (sirve para importar el css importado en el js al html)
+
+(en el webpack.config.js) agregar un nuevo module (rules, puede tener una sola rule o un objeto dentro del arreglo, rules es un [], lo mismo para use, puede contener un solo loader o un arreglo)
+
+const path = require('path')
+
+module.exports={
+
+	entry:{
+		home:path.resolve(__dirname,'src/js/index.js'),
+	
+		},
+
+	mode:development,
+
+	output:{
+	
+		path:path.resolve(__dirname,'dist'),
+		filename:'js/[name].js' 
+},
+	module:{
+	rules:[
+	{
+	test:/\.css$/,
+	use: ['style-load','css-loader']	
+
+	}
+]
+	}
+
+}
+ 
+(script en el package.json)
+
+build:css
+
+9   ###plugins(extiende los poderes de los loaders)
+
+module:{
+	rules:[
+	{
+	test:/\.css$/,
+	use: [{
+		loader:MiniCSSExtractPlugin.loader
+		},'css-loader']	
+
+	}
+]
+	},
+plugins: [new MiniCSSExtractPlugin.loader({
+	filename;'css/[name].css'	
+	})]
+}
+
+
+npm install mini-css-extract-plugin html-webpack-plugin --save-dev --save-exact
+
+#### npm install --save-dev min-css-extract-plugin@0.7.0 (para instalar una version determinada @0.7.0) 
+
+
+importar como const en webpack.conmfig.js los plugins
+
+
+10#### servidor de desarrollo (WEBPACK-DEV-SERVER) para que compile automaticamente y recargue el navegador automaticamente
+
+"build:dev": "webpack-dev-server --config ./webpack-dev-server/webpack.config.js --watch"
+
+npm run build:dev -- -w (para anexar el watcher directamente a un commando que ya se tenia)
+
+npm install -D --save-exact webpack-dev-server  (-D es igual a --save-dev)
+
+"build:dev": "webpack-dev-server --config ./webpack-dev-server/webpack.config.js"
+
+11 ### hot module replacement
+
+const webpack = require('webpack')
+
+
+plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new HtmlWebpackPlugin({
+      title: 'webpack-dev-server'
+    }),
+  ]
+
+12 ### babel
+
+npm install --save-dev --save-exact @babel/core  babel-loader @babel/preset-env
+
+.babelrc
+
+{
+  "plugins": [
+    "@babel/plugin-transform-runtime"
+  ],
+  "presets": [
+    "@babel/preset-env"
+  ]
+}
+
+13 ### plugin para que babel transpile los async away
+
+npm install --save-dev --save-exact @babel/plugin-transform-runtime
+
+npm install --save-dev --save-exact @babel/runtime
+
+14  ### npm insstall --save --save-exact react react-dom
+
+15 ### react
+
+16 ### url-loader 
+
+npm install --save-dev --save-exact url-loader
+npm install --save-dev --save-exact file-loader
+
+module
+
+{
+        test: /\.jpg|png|gif|woff|eot|ttf|svg|mp4|webm$/,
+        use: {
+          loader: 'url-loader',
+          options: {
+            limit: 90000,
+          }
+        }
+
+
+17  #### post sass less stylus
+
+npm install sass-loader stylus-loader less-loader postcss-loader --save-dev --save-exact
+
+npm install stylus less node-sass --save-dev --save-exact
+
+npm install --save-dev --save-exact postcss-nested
+
+18 ### splitChunks
+
+plugins (nuevo module )
+
+optimization: {
+    splitChunks: {
+      chunks: 'all',
+      minSize: 0,
+      name: 'commons'
+    }
+  }
+
+19 ### Dynamic Link Library  dll (webpack.dll.config.js)
+
+necesito dos plugins uno para importar el dll y otro para consumir el dll
+
+webpack.DllReferencePlugin  (webpack.config.js)
+
+20 ### Dynamic Import (para cargar un modulo solo cuando el usuario lo requiera, x ej al presionar un boton, en lugar de cargar todos los modulos de una pagina, ya que quizas ese modulo no sea muy utilizado, esto reducira la cargar inicial de codigo de nuestra pagina web)
+
+(para soportar los dynamic import, es necesario un plugin de babel)(agregar el plugin a plugins en  .babelrc (manualmente))
+
+npm install --save-dev --save-exact @babel/plugin-syntax-dynamic-import
+
+output:
+
+plubicPath:'dist/' (de donde voy a buscar los archivos que este esportando)(tambien se utiliza para cbn)
+
+21 ###
+
+24 ### npm install -S -D add-asset-html-webpack-plugin
+
+25 ### npm install -S -D clean-webpack-plugin
+
+npm install -S -D optimize-css-assests-webpack-plugin terser-webpack-plugin
